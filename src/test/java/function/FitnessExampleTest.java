@@ -20,7 +20,7 @@ public class FitnessExampleTest {
         addPage("SuiteSetUp", "suiteSetUp");
         addPage("SuiteTearDown", "suiteTearDown");
 
-        crawler.addPage(testPage, PathParser.parse("ScenarioLibrary"), "scenario library 2");
+        crawler.addPage(testPage, PathParser.parse("ScenarioLibrary"), "scena0rio library 2");
 
         pageData = testPage.getData();
     }
