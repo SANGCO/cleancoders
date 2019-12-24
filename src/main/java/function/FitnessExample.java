@@ -11,28 +11,30 @@ public class FitnessExample {
     private class TestableHtmlMaker {
         private PageData pageData;
         private boolean includeSuiteSetup;
+        private WikiPage wikiPage;
+        private StringBuffer buffer;
 
         public TestableHtmlMaker(PageData pageData, boolean includeSuiteSetup) {
             this.pageData = pageData;
             this.includeSuiteSetup = includeSuiteSetup;
+            this.wikiPage = pageData.getWikiPage();
+            this.buffer = new StringBuffer();
         }
 
         public String invoke() throws Exception {
-            WikiPage wikiPage = pageData.getWikiPage();
-            StringBuffer buffer = new StringBuffer();
 
             if (pageData.hasAttribute("Test")) {
                 if (includeSuiteSetup) {
                     WikiPage suiteSetup = PageCrawlerImpl.getInheritedPage(SuiteResponder.SUITE_SETUP_NAME, wikiPage);
                     if (suiteSetup != null) {
                         String mode = "setup";
-                        includePage(wikiPage, buffer, suiteSetup, mode);
+                        includePage(suiteSetup, mode);
                     }
                 }
                 WikiPage setup = PageCrawlerImpl.getInheritedPage("SetUp", wikiPage);
                 if (setup != null) {
                     String mode = "setup";
-                    includePage(wikiPage, buffer, setup, mode);
+                    includePage(setup, mode);
                 }
             }
 
@@ -41,13 +43,13 @@ public class FitnessExample {
                 WikiPage teardown = PageCrawlerImpl.getInheritedPage("TearDown", wikiPage);
                 if (teardown != null) {
                     String mode = "teardown";
-                    includePage(wikiPage, buffer, teardown, mode);
+                    includePage(teardown, mode);
                 }
                 if (includeSuiteSetup) {
                     WikiPage suiteTeardown = PageCrawlerImpl.getInheritedPage(SuiteResponder.SUITE_TEARDOWN_NAME, wikiPage);
                     if (suiteTeardown != null) {
                         String mode = "teardown";
-                        includePage(wikiPage, buffer, suiteTeardown, mode);
+                        includePage(suiteTeardown, mode);
                     }
                 }
             }
@@ -56,7 +58,7 @@ public class FitnessExample {
             return pageData.getHtml();
         }
 
-        private void includePage(WikiPage wikiPage, StringBuffer buffer, WikiPage suiteSetup, String mode) throws Exception {
+        private void includePage(WikiPage suiteSetup, String mode) throws Exception {
             WikiPagePath pagePath = wikiPage.getPageCrawler().getFullPath(suiteSetup);
             String pagePathName = PathParser.render(pagePath);
             buffer.append("!include -" + mode + " .").append(pagePathName).append("\n");
